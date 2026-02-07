@@ -147,7 +147,7 @@ namespace BitcoinCrawlerStats
 
             if (uiMode == UIMode.Main)
             {
-                var topPanel = CreateLiveStatistics(stopwatch, buttonsStr);
+                var topPanel = CreateLiveStatistics(stopwatch, $"{buttonsStr} [[[yellow]g{ThisAssembly.Git.Sha}[/]]]");
                 topPanel.Width = w;
 
                 rows.Add(new Columns(topPanel, CreateLastBlocksTable("[bold green]Last Blocks[/]")));
