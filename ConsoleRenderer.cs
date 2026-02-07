@@ -139,15 +139,17 @@ namespace BitcoinCrawlerStats
 
             String buttonsStr = "";
             if (uiMode == UIMode.Main)
-                buttonsStr = " [[[green]1[/]]] 2 ";
+                buttonsStr = " [[[underline green]1[/]]] 2 ";
             else if (uiMode == UIMode.Details)
-                buttonsStr = " 1 [[[green]2[/]]] ";
+                buttonsStr = " 1 [[[underline green]2[/]]] ";
+
+            buttonsStr = $"{buttonsStr} [[[yellow]g{ThisAssembly.Git.Sha}[/]]]";
 
             int w = (ConsoleWidth / 2) - 2;
 
             if (uiMode == UIMode.Main)
             {
-                var topPanel = CreateLiveStatistics(stopwatch, $"{buttonsStr} [[[yellow]g{ThisAssembly.Git.Sha}[/]]]");
+                var topPanel = CreateLiveStatistics(stopwatch, buttonsStr);
                 topPanel.Width = w;
 
                 rows.Add(new Columns(topPanel, CreateLastBlocksTable("[bold green]Last Blocks[/]")));
@@ -379,8 +381,10 @@ namespace BitcoinCrawlerStats
                                     {
                                         var services = p.Value.Services;
 
-                                        return  ((services & (ulong)CrawlerEngine.ServiceFlags.NODE_NETWORK_LIMITED) != 0 ? 1 : 0)
-                                             + (((services & (ulong)CrawlerEngine.ServiceFlags.NODE_NETWORK) != 0 ? 1 : 0) << 1);   // Full node
+                                        var ret = ((services & (ulong)CrawlerEngine.ServiceFlags.NODE_NETWORK_LIMITED) != 0 ? 1 : 0)
+                                               + (((services & (ulong)CrawlerEngine.ServiceFlags.NODE_NETWORK) != 0 ? 1 : 0) << 1);   // Full node
+
+                                        return ret == 2 ? 3 : ret; // hack: on rare occasions, nodes have NODE_NETWORK only. Go figure...
                                     }
                                 )
                                 .Select(g => new {
