@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "BitcoinCrawlerStats": {
+      "commandName": "Project",
+      "commandLineArgs": "--max-sessions 100 --enable-http-server --http-server-address mypc:5050 --disable-evaluation"
+    }
+  }
+}
