@@ -278,8 +278,8 @@ namespace BitcoinCrawlerStats
                 .Title(title)
                 .Border(TableBorder.Rounded)
                 .AddColumn("User agent", c => c.RightAligned().Width(uaWidth))
-                .AddColumn("Count", c => c.Centered().Width(10))
-                .AddColumn("Pct", c => c.LeftAligned().Width(6));
+                .AddColumn("Count", c => c.RightAligned().Width(10))
+                .AddColumn("Pct", c => c.RightAligned().Width(6));
 
             // Always show exactly 10 rows (newest on top)
             var sorted = uaStats.OrderByDescending(kv => kv.Value);
@@ -316,8 +316,8 @@ namespace BitcoinCrawlerStats
                 .Title(title)
                 .Border(TableBorder.Rounded)
                 .AddColumn("Id", c => c.RightAligned().Width(uaWidth))
-                .AddColumn("Count", c => c.Centered().Width(12))
-                .AddColumn("Pct", c => c.LeftAligned().Width(6));
+                .AddColumn("Count", c => c.RightAligned().Width(12))
+                .AddColumn("Pct", c => c.RightAligned().Width(6));
 
             // Always show exactly N rows (newest on top)
             var sorted = _crawler.ProtocolStats.OrderByDescending(kv => kv.Value);
@@ -417,7 +417,7 @@ namespace BitcoinCrawlerStats
                 .Title(title)
                 .Border(TableBorder.Rounded)
                 .AddColumn("Flag", c => c.RightAligned().Width(uaWidth))
-                .AddColumn("Count", c => c.Centered().Width(12));
+                .AddColumn("Count", c => c.RightAligned().Width(12));
 
             // Always show exactly N rows (newest on top)
             var sorted = _crawler.ServiceStats.OrderByDescending(kv => kv.Value);
@@ -451,7 +451,7 @@ namespace BitcoinCrawlerStats
                 .Border(TableBorder.Rounded)
                 .AddColumn("Hash", c => c.RightAligned().Width(hashWidth))
                 .AddColumn("1st seen", c => c.Centered().Width(12))
-                .AddColumn("Count", c => c.Centered().Width(12))
+                .AddColumn("Count", c => c.RightAligned().Width(12))
                 //.AddColumn("Pct", c => c.LeftAligned().Width(7))
                 ;
 
@@ -504,7 +504,7 @@ namespace BitcoinCrawlerStats
             }
 
             table.AddColumn("Proto", c => c.LeftAligned().Width(5))
-                 .AddColumn("Addrs", c => c.LeftAligned().Width(5))
+                 .AddColumn("Addrs", c => c.RightAligned().Width(5))
                  .AddColumn("LastReceived", c => c.LeftAligned().Width(11))
                  .AddColumn("LastMsg", c => c.LeftAligned().Width(10))
                  ;
