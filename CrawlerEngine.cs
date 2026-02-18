@@ -1375,6 +1375,16 @@ namespace BitcoinCrawlerStats
         {
             int launched = 0;
 
+            // First, a bit of cleanup (unsupported/ignored protocols, etc)...
+            var toRemove = new List<String>();
+            foreach (var kvp in Unvisited)
+            {
+                if (this.Visited.Contains(kvp.Key))
+                    toRemove.Add(kvp.Key);
+            }
+            foreach (var key in toRemove)
+                this.Unvisited.TryRemove(key, out _);
+            
             foreach (var kvp in Unvisited)
             {
                 var peer = kvp.Value;
