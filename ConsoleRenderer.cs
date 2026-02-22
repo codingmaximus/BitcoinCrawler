@@ -234,7 +234,7 @@ namespace BitcoinCrawlerStats
                     oldestSession = list.FirstOrDefault().Value.Start;
             }
 
-            var bip110Count = _crawler.ServiceStats.Where(p => p.Key == nameof(CrawlerEngine.ServiceFlags.NODE_UASF_REDUCED_DATA)).FirstOrDefault().Value;
+            var bip110Count = _crawler.ServiceStats.Where(p => p.Key == nameof(BitcoinSession.ServiceFlags.NODE_UASF_REDUCED_DATA)).FirstOrDefault().Value;
 
             var grid = new Grid()
                 .AddColumn(new GridColumn().PadRight(4))
@@ -381,8 +381,8 @@ namespace BitcoinCrawlerStats
                                     {
                                         var services = p.Value.Services;
 
-                                        var ret = ((services & (ulong)CrawlerEngine.ServiceFlags.NODE_NETWORK_LIMITED) != 0 ? 1 : 0)
-                                               + (((services & (ulong)CrawlerEngine.ServiceFlags.NODE_NETWORK) != 0 ? 1 : 0) << 1);   // Full node
+                                        var ret = ((services & (ulong)BitcoinSession.ServiceFlags.NODE_NETWORK_LIMITED) != 0 ? 1 : 0)
+                                               + (((services & (ulong)BitcoinSession.ServiceFlags.NODE_NETWORK) != 0 ? 1 : 0) << 1);   // Full node
 
                                         return ret == 2 ? 3 : ret; // hack: on rare occasions, nodes have NODE_NETWORK only. Go figure...
                                     }
@@ -518,7 +518,7 @@ namespace BitcoinCrawlerStats
                 if (i < rows.Count)
                 {
                     var row = rows[i];
-                    var si = row.Value;
+                    var si = row.Value.SessionInfo;
                     var rcvage = (DateTime.Now - si.LastReceive);
                     var ageStr = si.LastReceive != DateTime.MinValue ? $"{rcvage.TotalSeconds:N0} sec ago" : "";
                     long? bufferPos = si.MessageBuffer != null && si.MessageBuffer.CanRead ? si.MessageBuffer.Position : null;

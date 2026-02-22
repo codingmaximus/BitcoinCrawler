@@ -56,7 +56,7 @@ namespace BitcoinCrawlerStats
         public int MaxTorSimultaneousConnects { get; init; }
 
         [CommandOption("--refresh-interval")]
-        [Description("Specifies UI refresh interval in seconds")]
+        [Description("Specifies console UI refresh interval in seconds")]
         [DefaultValue(1)]
         public int RefreshIntervalSeconds { get; init; }
 
@@ -93,5 +93,10 @@ namespace BitcoinCrawlerStats
         [Description("Disables peer evaluation of new block broadcasts. Makes crawler much faster")]
         [DefaultValue(false)]
         public bool DisableEvaluation { get; init; }
+
+        [CommandOption("--disable-console-refresh")]
+        [Description("Disables Console statistics. Improves performance on slower systems")]
+        [DefaultValue(false)]
+        public bool DisableConsoleRefresh { get; init; }
     }
 }
