@@ -92,7 +92,8 @@ OPTIONS:
 	--show-session-buffer-info                            Show buffer information in session panel
 	--disable-evaluation                                  Disables peer evaluation about new block broadcast. Makes
 														  crawler much faster
-
+	--disable-console-refresh							  Disables console refresh. Improves performance on slower systems
+	
 ## Persistence
 
 BitcoinCrawler uses sqlite to keep data between sessions. It writes to file "crawler.db" in the same folder as the executable. This can be overriden by command line option (see below).

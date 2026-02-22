@@ -95,7 +95,7 @@ namespace BitcoinCrawlerStats
         public bool DisableEvaluation { get; init; }
 
         [CommandOption("--disable-console-refresh")]
-        [Description("Disables Console statistics. Improves performance on slower systems")]
+        [Description("Disables console refresh. Improves performance on slower systems")]
         [DefaultValue(false)]
         public bool DisableConsoleRefresh { get; init; }
     }
