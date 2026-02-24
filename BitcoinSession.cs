@@ -1,5 +1,4 @@
 ﻿using BitcoinCrawlerStats.Models;
-using Microsoft.AspNetCore.Http;
 using System;
 using System.Buffers.Binary;
 using System.Collections.Generic;
@@ -8,7 +7,6 @@ using System.Net;
 using System.Net.Sockets;
 using System.Runtime;
 using System.Text;
-using System.Threading.Tasks;
 
 using static BitcoinCrawlerStats.StringUtils;
 
@@ -83,7 +81,7 @@ namespace BitcoinCrawlerStats
             this.SessionInfo.CancellationTokenSource.Cancel();
         }
 
-        internal async Task ProcessPeerStreamAsync(NetworkStream stream, SessionInfo sessionInfo, PeerInfo peerInfo, bool pinned = false)
+        internal async Task ProcessPeerStreamAsync(Stream stream, SessionInfo sessionInfo, PeerInfo peerInfo, bool pinned = false)
         {
             var contextStr = peerInfo.Host ?? peerInfo.IP?.ToString()!;
             MemoryStream? msInner = null;
@@ -312,18 +310,30 @@ namespace BitcoinCrawlerStats
                                     }
                                 }
 
-                                if (!_settings.DisableIP)
-                                {
-                                    var ipAddresses = addresses.Where(p => p.networkId == (int)NetworkId.IPv4 || p.networkId == (int)NetworkId.IPv6).ToList();
-                                    foreach (var peer in ipAddresses)
-                                    {
-                                        Interlocked.Increment(ref sessionInfo.Addresses);
+                                List<(int, string, IPAddress, int)> peerAddresses = new List<(int, string, IPAddress, int)>();
 
-                                        var newPeerInfo = new PeerInfo(peer);
-                                        var key = PeerToString(newPeerInfo);
-                                        _engine.AddToCollectedIfNew(key);
-                                        _engine.AddToUnvisitedIfNew(key, newPeerInfo);
-                                    }
+                                if (!_settings.DisableIP)
+                                    peerAddresses.AddRange(
+                                                addresses
+                                                    .Where(p => p.networkId == (int)NetworkId.IPv4 || p.networkId == (int)NetworkId.IPv6)
+                                                    .ToList()
+                                            );
+
+                                if (!_settings.DisableI2P)
+                                    peerAddresses.AddRange(
+                                                addresses
+                                                    .Where(p => p.networkId == (int)NetworkId.i2p)
+                                                    .ToList()
+                                            );
+
+                                foreach (var peer in peerAddresses)
+                                {
+                                    Interlocked.Increment(ref sessionInfo.Addresses);
+
+                                    var newPeerInfo = new PeerInfo(peer);
+                                    var key = PeerToString(newPeerInfo);
+                                    _engine.AddToCollectedIfNew(key);
+                                    _engine.AddToUnvisitedIfNew(key, newPeerInfo);
                                 }
                             }
                             catch
@@ -661,7 +671,7 @@ namespace BitcoinCrawlerStats
                     string? host = null;
                     short port = 0;
                     IPAddress ip = null!;
-                    if (networkId == 0x01)
+                    if (networkId == (byte)NetworkId.IPv4)
                     {
                         // IPV4
 
@@ -671,7 +681,7 @@ namespace BitcoinCrawlerStats
                         ip = new IPAddress(ipBytes);
                         host = ip.ToString();
                     }
-                    else if (networkId == 0x02)
+                    else if (networkId == (byte)NetworkId.IPv6)
                     {
                         // IPV6
 
@@ -686,7 +696,7 @@ namespace BitcoinCrawlerStats
 
                         host = ip.ToString();
                     }
-                    else if (networkId == 0x04)
+                    else if (networkId == (byte)NetworkId.TorV3)
                     {
                         // TOR V3
 
@@ -696,6 +706,16 @@ namespace BitcoinCrawlerStats
 
                         // Convert to .onion string using Tor's standard encoding
                         host = PubkeyToOnionAddress(pubkeyBytes);
+                    }
+                    else if (networkId == (byte)NetworkId.i2p)
+                    {
+                        // I2P
+
+                        var i2pAddressBytes = reader.ReadBytes(32);
+
+                        port = (short)((reader.ReadByte() << 8) | reader.ReadByte());
+                        host = Base32Encoding.ToString(i2pAddressBytes) + ".b32.i2p";
+
                     }
                     else
                     {

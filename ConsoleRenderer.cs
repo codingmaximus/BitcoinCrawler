@@ -241,6 +241,7 @@ namespace BitcoinCrawlerStats
                 .AddColumn()
                 .AddRow("[bold yellow]Initial Peers:[/] ", $"[green]{_crawler.InitialPeers.Count,10:N0}[/] peers")
                 .AddRow("[bold yellow]Collected:[/] ", $"[green]{_crawler.Collected.Count,10:N0}[/] peers")
+                //.AddRow("[bold yellow]Collected I2P:[/] ", $"[blue]{_crawler.Collected.Where(p => p.Contains(".b32.i2p")).Count(),10:N0}[/] peers")
                 .AddRow("[bold yellow]Unvisited:[/] ", $"{_crawler.Unvisited.Count,10:N0} peers")
                 .AddRow("[bold yellow]Visited:[/] ", $"[green]{_crawler.Visited.Count,10:N0}[/] peers")
                 .AddRow("[bold yellow]Evaluated:[/] ", $"[green]{_crawler.Evaluated.Count(),10:N0}[/] peers")
@@ -251,6 +252,11 @@ namespace BitcoinCrawlerStats
                 grid
                     //.AddRow("[bold yellow]Tor success:[/] ", $"[green]{stats.TorSuccess,10:N0}[/]")
                     .AddRow("[bold yellow]Tor errors:[/] ", $"[red]{stats.TorErrors,10:N0}[/]");
+
+            if (!_settings.DisableI2P)
+                grid
+                    //.AddRow("[bold yellow]I2P success:[/] ", $"[green]{stats.I2pSuccess,10:N0}[/]")
+                    .AddRow("[bold yellow]I2P errors:[/] ", $"[red]{stats.I2pErrors,10:N0}[/]");
 
             grid.AddRow("[bold yellow]Conn. errors:[/] ", $"[red]{stats.ConnectionErrors,10:N0}[/]")
                 //.AddRow("[bold yellow]Stream errors:[/] ", $"[red]{stats.StreamErrors,10:N0}[/]")
@@ -362,10 +368,10 @@ namespace BitcoinCrawlerStats
             if (total != 0)
                 chart = chart.UseValueFormatter((value, culture) => $"{value:N0} ({(100 * value / (double)total):N0}%)");
 
-            var colors = new [] { Color.Green, Color.Blue, Color.Yellow, Color.Red };
+            var colors = new [] { Color.Green, Color.Cyan, Color.Yellow, Color.Red, Color.Green, Color.Blue };
 
             foreach (var item in stats)
-                chart.AddItem(item.NetworkIdStr, item.Count, colors[item.NetworkId % 4]);
+                chart.AddItem(item.NetworkIdStr, item.Count, colors[item.NetworkId % 6]);
 
             return chart;
         }
@@ -510,7 +516,9 @@ namespace BitcoinCrawlerStats
                  ;
 
             const int ROWCOUNT = 10;
-            var sorted = _crawler.Sessions.Where(p => !String.IsNullOrEmpty(p.Value.UserAgent)).OrderBy(kv => kv.Value?.Start ?? DateTime.Now);   // order by session age, oldest first
+            var sorted = _crawler.Sessions
+                                .Where(p => !String.IsNullOrEmpty(p.Value.UserAgent))
+                                .OrderBy(kv => kv.Value?.Start ?? DateTime.Now);   // order by session age, oldest first
             //var sorted = Sessions.OrderByDescending(kv => kv.Value?.Addresses ?? 0);
             var rows = sorted.Take(Math.Min(sorted.Count(), ROWCOUNT)).ToList();
             for (int i = 0; i < ROWCOUNT; i++)
@@ -539,7 +547,7 @@ namespace BitcoinCrawlerStats
                         columns.Add($"[{(bufferPos == 0 ? "green" : "red")}]{bufferPos}[/]");
                     }
 
-                    columns.Add($"[{(si.NetworkId == NetworkId.IPv4 || si.NetworkId == NetworkId.IPv6 ? "yellow" : "green")}]{si.NetworkId}[/]");
+                    columns.Add($"[{(si.NetworkId == NetworkId.IPv4 || si.NetworkId == NetworkId.IPv6 ? "yellow" : (si.NetworkId == NetworkId.i2p ? "blue" : "green"))}]{si.NetworkId}[/]");
                     columns.Add($"[green]{si.Addresses:N0}[/]");
                     columns.Add($"[green]{ageStr}[/]");
                     columns.Add($"[green]{si.LastMessage}[/]");
