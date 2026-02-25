@@ -248,12 +248,12 @@ namespace BitcoinCrawlerStats
                 //.AddRow("[bold yellow]Unique user Agents:[/] ", $"[green]{_crawler.UserAgentStats.Count,10:N0}[/]")
                 .AddRow("[bold yellow]Total user Agents:[/] ", $"[green]{_crawler.UserAgentStats.Values.Sum(),10:N0}[/]");
 
-            if (!_settings.DisableTor)
+            if (_settings.EnableTor)
                 grid
                     //.AddRow("[bold yellow]Tor success:[/] ", $"[green]{stats.TorSuccess,10:N0}[/]")
                     .AddRow("[bold yellow]Tor errors:[/] ", $"[red]{stats.TorErrors,10:N0}[/]");
 
-            if (!_settings.DisableI2P)
+            if (_settings.EnableI2P)
                 grid
                     //.AddRow("[bold yellow]I2P success:[/] ", $"[green]{stats.I2pSuccess,10:N0}[/]")
                     .AddRow("[bold yellow]I2P errors:[/] ", $"[red]{stats.I2pErrors,10:N0}[/]");

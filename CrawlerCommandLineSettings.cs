@@ -16,15 +16,15 @@ namespace BitcoinCrawlerStats
         [DefaultValue(false)]
         public bool DisableIP { get; init; } = true;
 
-        [CommandOption("--disable-tor")]
-        [Description("Disables connecting to Tor v3 addresses")]
+        [CommandOption("--enable-tor")]
+        [Description("Enables connecting to Tor v3 addresses")]
         [DefaultValue(false)]
-        public bool DisableTor { get; init; }
+        public bool EnableTor { get; init; }
 
-        [CommandOption("--disable-i2p")]
-        [Description("Disables connecting to I2P addresses")]
+        [CommandOption("--enable-i2p")]
+        [Description("Enables connecting to I2P addresses")]
         [DefaultValue(false)]
-        public bool DisableI2P { get; init; }
+        public bool EnableI2P { get; init; }
 
         [CommandOption("--tor-proxy-host")]
         [Description("Tor proxy host. Required to connect to .onion addresses")]

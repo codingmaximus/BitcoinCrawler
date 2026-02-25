@@ -296,7 +296,7 @@ namespace BitcoinCrawlerStats
                                     //Console.WriteLine($"{contextStr}: SENT getaddr");
                                 }
 
-                                if (!_settings.DisableTor)
+                                if (_settings.EnableTor)
                                 {
                                     var torAddresses = addresses.Where(p => p.networkId == (int)NetworkId.TorV3).ToList();  // Tor v3
                                     foreach (var torAddr in torAddresses)
@@ -319,7 +319,7 @@ namespace BitcoinCrawlerStats
                                                     .ToList()
                                             );
 
-                                if (!_settings.DisableI2P)
+                                if (_settings.EnableI2P)
                                     peerAddresses.AddRange(
                                                 addresses
                                                     .Where(p => p.networkId == (int)NetworkId.i2p)
