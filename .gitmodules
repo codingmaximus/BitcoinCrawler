@@ -1,0 +1,3 @@
+[submodule "i2pdotnet"]
+	path = i2pdotnet
+	url = https://github.com/codingmaximus/i2pdotnet-maximus.git
