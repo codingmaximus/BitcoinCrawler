@@ -16,10 +16,15 @@ namespace BitcoinCrawlerStats
         [DefaultValue(false)]
         public bool DisableIP { get; init; } = true;
 
-        [CommandOption("--disable-tor")]
-        [Description("Disables connecting to Tor v3 addresses")]
+        [CommandOption("--enable-tor")]
+        [Description("Enables connecting to Tor v3 addresses")]
         [DefaultValue(false)]
-        public bool DisableTor { get; init; }
+        public bool EnableTor { get; init; }
+
+        [CommandOption("--enable-i2p")]
+        [Description("Enables connecting to I2P addresses")]
+        [DefaultValue(false)]
+        public bool EnableI2P { get; init; }
 
         [CommandOption("--tor-proxy-host")]
         [Description("Tor proxy host. Required to connect to .onion addresses")]
@@ -30,6 +35,16 @@ namespace BitcoinCrawlerStats
         [Description("Tor proxy port. Required to connect to .onion addresses")]
         [DefaultValue(9050)]
         public int TorProxyPort { get; init; }
+
+        [CommandOption("--sam-host")]
+        [Description("SAM host. Required to connect to I2P addresses")]
+        [DefaultValue("127.0.0.1")]
+        public String? SamHost { get; init; }
+
+        [CommandOption("--sam-port")]
+        [Description("SAM port. Required to connect to I2P addresses")]
+        [DefaultValue(7656)]
+        public int SamPort { get; init; }
 
         [CommandOption("--single-seed-host")]
         [Description("For debugging purposes. Specifies the single seed host to get peers from. e.g.: your node address")]

@@ -1,4 +1,5 @@
 ﻿using BitcoinCrawlerStats.Models;
+using I2PNet;
 using OnixLabs.Core.Linq;
 using SocksSharp.Proxy;
 using Spectre.Console;
@@ -69,12 +70,12 @@ namespace BitcoinCrawlerStats
         //private const int MaxPeersToCrawl = 5000;
 
         private ProxyClient<Socks5>? _proxyClient;
-        internal ProxyClient<Socks5>? ProxyClient => _proxyClient;
+        private I2PSession? _samSession;
 
         LiveStatistics _liveStatistics = new LiveStatistics();
 
         int _torConnectCount = 0;
-        object _connectLock = new object();
+        //object _connectLock = new object();
 
         readonly CommandContext _context;
         readonly CrawlerCommandLineSettings _settings;
@@ -149,8 +150,26 @@ namespace BitcoinCrawlerStats
                 Port = _settings.TorProxyPort
             };
 
-            _proxyClient = new ProxyClient<Socks5>();
-            _proxyClient.Settings = proxySettings;
+            if (_settings.EnableTor)
+            {
+                _proxyClient = new ProxyClient<Socks5>();
+                _proxyClient.Settings = proxySettings;
+            }
+
+            if (Settings.EnableI2P)
+            {
+                try
+                {
+                    // Connect to SAM bridge
+                    Console.WriteLine("Initializing SAM session...");
+                    _samSession = new I2PSession(samPort: _settings.SamPort, samIPaddress: Dns.GetHostAddresses(_settings.SamHost!).FirstOrDefault());
+                    await _samSession.InitializeAsync();
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception($"Unable to connect to SAM (I2P) bridge at {_settings.SamHost}:{_settings.SamPort} : {ex.Message}");
+                }
+            }
 
             _stopwatch = Stopwatch.StartNew();
 
@@ -247,13 +266,21 @@ namespace BitcoinCrawlerStats
                 sbExtra.Append(" using protocols: ");
                 sbExtra.Append("IP");
             }
-            if (!_settings.DisableTor)
+            if (_settings.EnableTor)
             {
                 if (sbExtra.Length == 0)
                     sbExtra.Append(" using protocols: ");
                 else
-                    sbExtra.Append(" and ");
+                    sbExtra.Append(" + ");
                 sbExtra.Append("Tor");
+            }
+            if (_settings.EnableI2P)
+            {
+                if (sbExtra.Length == 0)
+                    sbExtra.Append(" using protocols: ");
+                else
+                    sbExtra.Append(" + ");
+                sbExtra.Append("I2P");
             }
 
             Console.WriteLine(sb.ToString() + sbExtra.ToString());
@@ -510,7 +537,7 @@ namespace BitcoinCrawlerStats
         private async Task ConnectAndProcessPeerAsync(PeerInfo peer, BitcoinSession bitcoinSession)
         {
             TcpClient? client = null;
-            NetworkStream? stream = null;
+            Stream? stream = null;
 
             int networkId = peer.NetworkId;
             bool isOnion = (networkId == (int)NetworkId.Tor || networkId == (int)NetworkId.TorV3);
@@ -520,12 +547,12 @@ namespace BitcoinCrawlerStats
                 var cts = sessionInfo.CancellationTokenSource;
                 try
                 {
-                    if (isOnion)
+                    if (isOnion && _proxyClient != null)
                     {
                         try
                         {
                             Interlocked.Increment(ref _torConnectCount);
-                            stream = _proxyClient!.GetDestinationStream(peer.Host, peer.Port); // .onion resolves via Tor
+                            stream = _proxyClient.GetDestinationStream(peer.Host, peer.Port); // .onion resolves via Tor
                         }
                         finally
                         {
@@ -541,6 +568,12 @@ namespace BitcoinCrawlerStats
                         await client.ConnectAsync(peer.IP, peer.Port, cts.Token);
                         stream = client.GetStream();
                     }
+                    else if (networkId == (int)NetworkId.i2p && _samSession != null)
+                    {
+                        stream = await _samSession.ConnectAsync(peer.Host);
+
+                        Interlocked.Increment(ref _liveStatistics.I2pSuccess);
+                    }
                     else
                         return; // Not supported
                 }
@@ -555,6 +588,9 @@ namespace BitcoinCrawlerStats
                     }
                     else
                     {
+                        if (networkId == (int)NetworkId.i2p)
+                            Interlocked.Increment(ref _liveStatistics.I2pErrors);
+
                         if (_settings.Verbose)
                             Console.WriteLine("TCP/IP connect ERROR: " + cex.Message);
                     }
@@ -711,7 +747,7 @@ namespace BitcoinCrawlerStats
                 if (Sessions.Count > _settings.MaxActiveSessions)
                     return false;
 
-                if (!_settings.DisableTor && (peer.NetworkId == (int)NetworkId.Tor || peer.NetworkId == (int)NetworkId.TorV3))
+                if (_settings.EnableTor && (peer.NetworkId == (int)NetworkId.Tor || peer.NetworkId == (int)NetworkId.TorV3))
                 {
                     if (_torConnectCount > _settings.MaxTorSimultaneousConnects)
                         return false;
@@ -734,7 +770,8 @@ namespace BitcoinCrawlerStats
                         StateHasChanged();  // Signal UI to refresh
 
                         if ((!_settings.DisableIP && (peer.NetworkId == (int)NetworkId.IPv4 || peer.NetworkId == (int)NetworkId.IPv6))
-                          || (!_settings.DisableTor && (peer.NetworkId == (int)NetworkId.Tor || peer.NetworkId == (int)NetworkId.TorV3)))
+                          || (_settings.EnableTor && (peer.NetworkId == (int)NetworkId.Tor || peer.NetworkId == (int)NetworkId.TorV3))
+                          || (_settings.EnableI2P && (peer.NetworkId == (int)NetworkId.i2p)))
                         {
                             sessionInfo.Task = Task.Run(async () => await ConnectAndProcessPeerAsync(peer, bitcoinSession));
                             return true;

@@ -13,6 +13,9 @@
         public long TorSuccess;
         public long TorErrors;
 
+        public long I2pSuccess;
+        public long I2pErrors;
+
         public double CalculateFps()
         {
             var now = DateTime.UtcNow;
