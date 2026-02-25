@@ -69,30 +69,35 @@ USAGE:
 
 OPTIONS:
 
-	--help                                                Prints help information
-	--disable-ip                                          Disables connecting to IPv4/IPv6 addresses
-	--disable-tor                                         Disables connecting to Tor v3 addresses
-	--tor-proxy-host              127.0.0.1               Tor proxy host. Required to connect to .onion addresses
-	--tor-proxy-port              9050                    Tor proxy port. Required to connect to .onion addresses
-	--single-seed-host                                    For debugging purposes. Specifies the single seed host to get peers from. e.g.:
-														  your node address
-	--single-seed-port            8333                    For debugging purposes. Specifies the single seed port to get peers from. e.g.:
-														  your node port
-	--user-agent                  /BitcoinCrawler:1.0/    User agent string
-	--max-sessions                200                     Specifies the maximum number of active sessions
-	--max-tor-connect-attempts    10                      Specifies the maximum number of simultaneous Tor
-														  connection attempts
-	--refresh-interval            1                       Specifies UI refresh interval in seconds
-	--enable-http-server                                  Specifies whether the HTTP server should be started
-														  (disabled by default)
-	--http-server-address         localhost:5050          Specifies the HTTP server address (host:port)
-	--db-path                     crawler.db              Specifies the path to the database file. (sqlite)
-	--debug-parse                                         Enable debug of message parsing
-	--verbose                                             Enable verbose mode
-	--show-session-buffer-info                            Show buffer information in session panel
-	--disable-evaluation                                  Disables peer evaluation about new block broadcast. Makes
-														  crawler much faster
-	--disable-console-refresh							  Disables console refresh. Improves performance on slower systems
+    --help                                                Prints help information
+    --disable-ip                                          Disables connecting to IPv4/IPv6 addresses
+    --enable-tor                                          Enables connecting to Tor v3 addresses
+    --enable-i2p                                          Enables connecting to I2P addresses
+    --tor-proxy-host              127.0.0.1               Tor proxy host. Required to connect to .onion addresses
+    --tor-proxy-port              9050                    Tor proxy port. Required to connect to .onion addresses
+    --sam-host                    127.0.0.1               SAM host. Required to connect to I2P addresses
+    --sam-port                    7656                    SAM port. Required to connect to I2P addresses
+    --single-seed-host                                    For debugging purposes. Specifies the single seed host to
+                                                          get peers from. e.g.: your node address
+    --single-seed-port            8333                    For debugging purposes. Specifies the single seed port to
+                                                          get peers from. e.g.: your node port
+    --user-agent                  /BitcoinCrawler:1.0/    User agent string
+    --max-sessions                200                     Specifies the maximum number of active sessions
+    --max-tor-connect-attempts    10                      Specifies the maximum number of simultaneous Tor
+                                                          connection attempts
+    --refresh-interval            1                       Specifies console UI refresh interval in seconds
+    --enable-http-server                                  Specifies whether the HTTP server should be started
+                                                          (disabled by default)
+    --http-server-address         localhost:5050          Specifies the HTTP server address (host:port)
+    --db-path                     crawler.db              Specifies the path to the database file. (sqlite)
+    --debug-parse                                         Enable debug of message parsing
+    --verbose                                             Enable verbose mode
+    --show-session-buffer-info                            Show buffer information in session panel
+    --disable-evaluation                                  Disables peer evaluation of new block broadcasts. Makes
+                                                          crawler much faster
+    --disable-console-refresh                             Disables console refresh. Improves performance on slower
+                                                          systems
+
 	
 ## Persistence
 
