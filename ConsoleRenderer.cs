@@ -349,6 +349,12 @@ namespace BitcoinCrawlerStats
             return table;
         }
 
+        Color GetColorForNetworkId(int networkId)
+        {
+            var colors = new[] { Color.Green, Color.Cyan, Color.Yellow, Color.Red, Color.Green, Color.Blue };
+            return colors[networkId % 6];
+        }
+
         BreakdownChart CreateProtocolBreakdownChart(int width)
         {
             var chart = new BreakdownChart()
@@ -368,10 +374,8 @@ namespace BitcoinCrawlerStats
             if (total != 0)
                 chart = chart.UseValueFormatter((value, culture) => $"{value:N0} ({(100 * value / (double)total):N0}%)");
 
-            var colors = new [] { Color.Green, Color.Cyan, Color.Yellow, Color.Red, Color.Green, Color.Blue };
-
             foreach (var item in stats)
-                chart.AddItem(item.NetworkIdStr, item.Count, colors[item.NetworkId % 6]);
+                chart.AddItem(item.NetworkIdStr, item.Count, GetColorForNetworkId(item.NetworkId));
 
             return chart;
         }
@@ -547,7 +551,7 @@ namespace BitcoinCrawlerStats
                         columns.Add($"[{(bufferPos == 0 ? "green" : "red")}]{bufferPos}[/]");
                     }
 
-                    columns.Add($"[{(si.NetworkId == NetworkId.IPv4 || si.NetworkId == NetworkId.IPv6 ? "yellow" : (si.NetworkId == NetworkId.i2p ? "blue" : "green"))}]{si.NetworkId}[/]");
+                    columns.Add($"[{GetColorForNetworkId((int)si.NetworkId).ToMarkup()}]{si.NetworkId}[/]");
                     columns.Add($"[green]{si.Addresses:N0}[/]");
                     columns.Add($"[green]{ageStr}[/]");
                     columns.Add($"[green]{si.LastMessage}[/]");

@@ -161,10 +161,9 @@ namespace BitcoinCrawlerStats
                 try
                 {
                     // Connect to SAM bridge
-                    Console.WriteLine("Initializing SAM session. Please wait...");
+                    Console.WriteLine("Initializing SAM session...");
                     _samSession = new I2PSession(samPort: _settings.SamPort, samIPaddress: Dns.GetHostAddresses(_settings.SamHost!).FirstOrDefault());
                     await _samSession.InitializeAsync();
-                    Console.WriteLine("SAM session initialized.");
                 }
                 catch (Exception ex)
                 {
@@ -272,8 +271,16 @@ namespace BitcoinCrawlerStats
                 if (sbExtra.Length == 0)
                     sbExtra.Append(" using protocols: ");
                 else
-                    sbExtra.Append(" and ");
+                    sbExtra.Append(" + ");
                 sbExtra.Append("Tor");
+            }
+            if (_settings.EnableI2P)
+            {
+                if (sbExtra.Length == 0)
+                    sbExtra.Append(" using protocols: ");
+                else
+                    sbExtra.Append(" + ");
+                sbExtra.Append("I2P");
             }
 
             Console.WriteLine(sb.ToString() + sbExtra.ToString());
